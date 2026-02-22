@@ -76,6 +76,15 @@ export async function extractPdfWithAdobe(
 ): Promise<AdobeStructuredData> {
   const env = getServerEnv();
 
+  const clientId = env.PDF_SERVICES_CLIENT_ID;
+  const clientSecret = env.PDF_SERVICES_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    throw new AdobeExtractException(
+      "API_ERROR",
+      "Adobe PDF Services credentials not configured. Set PDF_SERVICES_CLIENT_ID and PDF_SERVICES_CLIENT_SECRET."
+    );
+  }
+
   // Write buffer to temp file (Adobe SDK requires file input)
   const tmpDir = os.tmpdir();
   const inputPath = path.join(tmpDir, `input-${Date.now()}-${fileName}`);
@@ -85,8 +94,8 @@ export async function extractPdfWithAdobe(
 
     // Set up credentials using v4 API
     const credentials = new ServicePrincipalCredentials({
-      clientId: env.PDF_SERVICES_CLIENT_ID,
-      clientSecret: env.PDF_SERVICES_CLIENT_SECRET,
+      clientId,
+      clientSecret,
     });
 
     // Create PDFServices instance
